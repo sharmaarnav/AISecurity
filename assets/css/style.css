@@ -235,3 +235,16 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:44px 20p
   .layer-arrows{flex-direction:column;gap:9px}
   .la-btn.nxt{margin-left:0}
 }
+
+/* ── Layer card grid (index overview page) ─────────────────────────── */
+.lc-section{padding:60px 24px 80px;max-width:1200px;margin:0 auto}
+.lc-section h2{font-size:1.4rem;color:var(--tx2);margin-bottom:28px;font-weight:600}
+.lc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.lc-card{display:flex;flex-direction:column;gap:10px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--tx);transition:background .2s,border-color .2s,transform .15s;border-top:3px solid var(--lc)}
+.lc-card:hover{background:var(--card-h);border-color:var(--border2);transform:translateY(-2px)}
+.lc-card-top{display:flex;align-items:center;gap:10px}
+.lc-num{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--tx3)}
+.lc-icon{font-size:1.3rem}
+.lc-name{font-weight:600;font-size:1rem}
+.lc-desc{font-size:.85rem;color:var(--tx2);line-height:1.5}
+.lc-arrow{margin-top:auto;font-size:.8rem;color:var(--lc);font-weight:600}

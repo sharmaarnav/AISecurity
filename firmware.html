@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Firmware / BIOS Security — AI Security Layers</title>
+<meta name="description" content="Firmware and BIOS security for AI systems: UEFI rootkits, insecure updates, BMC vulnerabilities, and Secure Boot bypass. Mitigations and real-world examples.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-layer="firmware">
+<div id="prog"></div>
+<div id="sOv" class="search-ov" role="dialog" aria-modal="true">
+  <button id="sClose" class="s-close">✕</button>
+  <div class="s-box"><input id="sInput" type="text" placeholder="Search risks, attacks, mitigations… (press / anytime)"></div>
+  <div id="sRes" class="s-res"></div>
+</div>
+<div id="mobMenu" class="mob-menu">
+  <button id="mobClose" class="mob-close">✕</button>
+  <p class="sb-title" style="padding-left:0;margin-top:4px">Jump to Layer</p>
+  <ul class="mob-list">
+    <li><a href="hardware.html"><span class="mob-dot" style="background:#ef4444"></span>01 — Hardware</a></li>
+    <li><a href="firmware.html"><span class="mob-dot" style="background:#f97316"></span>02 — Firmware / BIOS</a></li>
+    <li><a href="os.html"><span class="mob-dot" style="background:#eab308"></span>03 — Operating System</a></li>
+    <li><a href="virt.html"><span class="mob-dot" style="background:#22c55e"></span>04 — Virtualization &amp; Containers</a></li>
+    <li><a href="net.html"><span class="mob-dot" style="background:#06b6d4"></span>05 — Network &amp; Infrastructure</a></li>
+    <li><a href="data.html"><span class="mob-dot" style="background:#3b82f6"></span>06 — Data Pipeline</a></li>
+    <li><a href="train.html"><span class="mob-dot" style="background:#6366f1"></span>07 — Model Training</a></li>
+    <li><a href="infer.html"><span class="mob-dot" style="background:#a855f7"></span>08 — Model Inference</a></li>
+    <li><a href="app.html"><span class="mob-dot" style="background:#ec4899"></span>09 — Application &amp; API</a></li>
+    <li><a href="iam.html"><span class="mob-dot" style="background:#14b8a6"></span>10 — Identity &amp; Access</a></li>
+    <li><a href="gov.html"><span class="mob-dot" style="background:#f59e0b"></span>11 — Governance &amp; Ethics</a></li>
+  </ul>
+</div>
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <span class="name">AI <span>Security</span> Layers</span>
+  </a>
+  <div class="nav-chips">
+    <a href="hardware.html" class="chip" data-layer="hardware" style="--lc:#ef4444"><span class="dot" style="background:#ef4444"></span>Hardware</a>
+    <a href="firmware.html" class="chip" data-layer="firmware" style="--lc:#f97316"><span class="dot" style="background:#f97316"></span>Firmware</a>
+    <a href="os.html"       class="chip" data-layer="os"       style="--lc:#eab308"><span class="dot" style="background:#eab308"></span>OS</a>
+    <a href="virt.html"     class="chip" data-layer="virt"     style="--lc:#22c55e"><span class="dot" style="background:#22c55e"></span>Virtualization</a>
+    <a href="net.html"      class="chip" data-layer="net"      style="--lc:#06b6d4"><span class="dot" style="background:#06b6d4"></span>Network</a>
+    <a href="data.html"     class="chip" data-layer="data"     style="--lc:#3b82f6"><span class="dot" style="background:#3b82f6"></span>Data</a>
+    <a href="train.html"    class="chip" data-layer="train"    style="--lc:#6366f1"><span class="dot" style="background:#6366f1"></span>Training</a>
+    <a href="infer.html"    class="chip" data-layer="infer"    style="--lc:#a855f7"><span class="dot" style="background:#a855f7"></span>Inference</a>
+    <a href="app.html"      class="chip" data-layer="app"      style="--lc:#ec4899"><span class="dot" style="background:#ec4899"></span>Application</a>
+    <a href="iam.html"      class="chip" data-layer="iam"      style="--lc:#14b8a6"><span class="dot" style="background:#14b8a6"></span>Identity</a>
+    <a href="gov.html"      class="chip" data-layer="gov"      style="--lc:#f59e0b"><span class="dot" style="background:#f59e0b"></span>Governance</a>
+  </div>
+  <button id="sToggle" class="nav-btn" title="Search (/)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+  <button id="burger" class="nav-btn burger"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</nav>
+<div class="wrap">
+  <aside class="sidebar">
+    <p class="sb-title">Security Layers</p>
+    <ul class="sb-list">
+      <li><a href="hardware.html" class="sb-link" data-layer="hardware"><span class="sb-dot" style="background:#ef4444"></span>Hardware<span class="sb-num">01</span></a></li>
+      <li><a href="firmware.html" class="sb-link" data-layer="firmware"><span class="sb-dot" style="background:#f97316"></span>Firmware / BIOS<span class="sb-num">02</span></a></li>
+      <li><a href="os.html"       class="sb-link" data-layer="os"      ><span class="sb-dot" style="background:#eab308"></span>Operating System<span class="sb-num">03</span></a></li>
+      <li><a href="virt.html"     class="sb-link" data-layer="virt"    ><span class="sb-dot" style="background:#22c55e"></span>Virtualization<span class="sb-num">04</span></a></li>
+      <li><a href="net.html"      class="sb-link" data-layer="net"     ><span class="sb-dot" style="background:#06b6d4"></span>Network<span class="sb-num">05</span></a></li>
+      <li><a href="data.html"     class="sb-link" data-layer="data"    ><span class="sb-dot" style="background:#3b82f6"></span>Data Pipeline<span class="sb-num">06</span></a></li>
+      <li><a href="train.html"    class="sb-link" data-layer="train"   ><span class="sb-dot" style="background:#6366f1"></span>Model Training<span class="sb-num">07</span></a></li>
+      <li><a href="infer.html"    class="sb-link" data-layer="infer"   ><span class="sb-dot" style="background:#a855f7"></span>Model Inference<span class="sb-num">08</span></a></li>
+      <li><a href="app.html"      class="sb-link" data-layer="app"     ><span class="sb-dot" style="background:#ec4899"></span>Application / API<span class="sb-num">09</span></a></li>
+      <li><a href="iam.html"      class="sb-link" data-layer="iam"     ><span class="sb-dot" style="background:#14b8a6"></span>Identity &amp; Access<span class="sb-num">10</span></a></li>
+      <li><a href="gov.html"      class="sb-link" data-layer="gov"     ><span class="sb-dot" style="background:#f59e0b"></span>Governance &amp; Ethics<span class="sb-num">11</span></a></li>
+    </ul>
+  </aside>
+  <div class="content">
+
+<section class="layer" id="layer-firmware" data-layer="firmware" style="--lc:#f97316;--lca:rgba(249,115,22,.12)">
+  <div class="layer-head">
+    <span class="layer-num">02</span>
+    <span class="layer-ico">💾</span>
+    <div class="layer-info">
+      <h2 class="layer-title">Firmware / BIOS Layer</h2>
+      <p class="layer-desc">Firmware initialises AI systems before the OS loads. UEFI/BIOS, BMC, and GPU firmware form this layer. A compromised firmware layer is invisible to the OS and all security tools running above it — the entire stack above cannot be trusted once firmware is compromised.</p>
+      <div class="layer-tags">
+        <span class="ltag" style="color:#f97316;border-color:#f9731644">UEFI</span>
+        <span class="ltag" style="color:#f97316;border-color:#f9731644">Secure Boot</span>
+        <span class="ltag" style="color:#f97316;border-color:#f9731644">BMC / IPMI</span>
+        <span class="ltag" style="color:#f97316;border-color:#f9731644">Firmware Integrity</span>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-layer="firmware" data-tab="risks"  aria-selected="true" >⚠️ Security Risks</button>
+    <button class="tab"    data-layer="firmware" data-tab="mits"   aria-selected="false">🛡️ Mitigations</button>
+    <button class="tab"    data-layer="firmware" data-tab="ex"     aria-selected="false">📰 Real-World Examples</button>
+    <button class="tab"    data-layer="firmware" data-tab="tools"  aria-selected="false">🔧 Tools &amp; Resources</button>
+  </div>
+  <div class="panels">
+    <div class="panel on" id="p-firmware-risks">
+      <div class="risks">
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">UEFI / BIOS Rootkits</span><span class="sev critical">Critical</span></div>
+          <p class="risk-desc">Persistent malware embedded in UEFI firmware survives OS reinstallation, full disk wipe, and hardware component replacement. AI systems once infected at firmware level are permanently backdoored with no OS-level detection possible.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>Rootkits modify the DXE (Driver Execution Environment) phase to inject malicious drivers before the OS loads. They can disable Secure Boot, TPM measurements, and virtualisation-based security — intercepting AI framework loading and modifying model weights at load time.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Insecure Firmware Update Mechanisms</span><span class="sev high">High</span></div>
+          <p class="risk-desc">Firmware updates delivered without cryptographic signature verification can be tampered with in transit or at rest. Downgrade attacks force devices back to known-vulnerable firmware versions. GPU firmware on AI accelerators is a particularly under-secured update surface.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>Many BMC and GPU firmware update tools lack TLS certificate pinning and accept unsigned update packages. Downgrade attacks exploit missing rollback protection. IPMI-based firmware updates frequently lack authentication when BMC is network-accessible.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">BMC / IPMI Vulnerabilities</span><span class="sev high">High</span></div>
+          <p class="risk-desc">Baseboard Management Controllers provide out-of-band management of AI servers, running on a separate always-on network interface with full system access. BMC vulnerabilities can allow complete server takeover even when the OS is powered off.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>iLO/DRAC/BMC interfaces often run outdated firmware with known CVEs. AMI MegaRAC vulnerabilities (2022–23) affected BMCs in major AI server vendors. IPMI 2.0 RAKP flaw allows offline password cracking. BMC typically has direct PCIe access to GPU memory on AI servers.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Secure Boot Bypass &amp; Key Compromise</span><span class="sev high">High</span></div>
+          <p class="risk-desc">PKFail and similar vulnerabilities in Secure Boot key management allow attackers to sign malicious bootloaders that pass Secure Boot validation, compromising the entire chain of trust for AI server boot.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>PKFail (2024): test platform keys found shipped in production firmware across 5 major server vendors. The leaked private key allows signing malicious bootloaders that bypass Secure Boot on all affected systems — significant for AI server farms running security-sensitive workloads.</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-firmware-mits">
+      <div class="mits">
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">🔐</div><span class="mit-name">Enforce Secure Boot with Proper Key Management</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Enable UEFI Secure Boot on all AI servers; use your own Platform Key (PK) rather than vendor defaults</span></li>
+            <li><span class="snum">2</span><span>Audit Secure Boot databases (db/dbx) for revoked certificates; subscribe to UEFI revocation list updates</span></li>
+            <li><span class="snum">3</span><span>Verify Secure Boot is enabled and not bypassed regularly using chipsec or mokutil</span></li>
+            <li><span class="snum">4</span><span>Rotate keys immediately if any key material is compromised; maintain key lifecycle documentation</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">shim</span><span class="ttag">mokutil</span><span class="ttag">chipsec</span></div>
+        </div>
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">🌐</div><span class="mit-name">BMC Network Isolation &amp; Hardening</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Isolate BMC/IPMI on a dedicated management VLAN, completely separated from the production AI network</span></li>
+            <li><span class="snum">2</span><span>Disable unused BMC features: IPMI-over-LAN, remote KVM, virtual media unless actively needed</span></li>
+            <li><span class="snum">3</span><span>Change default BMC credentials immediately on every new AI server deployment</span></li>
+            <li><span class="snum">4</span><span>Apply BMC firmware updates promptly — treat BMC CVEs as critical regardless of CVSS score</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">ipmitool</span><span class="ttag">OpenBMC</span></div>
+        </div>
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">📦</div><span class="mit-name">Firmware Integrity Verification</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Subscribe to vendor PSIRT advisories for BMC and UEFI firmware CVEs; patch within defined SLA windows</span></li>
+            <li><span class="snum">2</span><span>Use fwupd (Linux Vendor Firmware Service) for automated, cryptographically signed firmware updates</span></li>
+            <li><span class="snum">3</span><span>Implement TPM-measured boot — PCR values logged — to detect unexpected firmware modifications</span></li>
+            <li><span class="snum">4</span><span>Run chipsec on AI server fleet to audit UEFI settings and memory protections periodically</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">fwupd</span><span class="ttag">LVFS</span><span class="ttag">chipsec</span><span class="ttag">tpm2-tools</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-firmware-ex">
+      <div class="exs">
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2018</span><span class="ex-type breach">Breach</span><span class="sev critical">Critical</span></div>
+          <div class="ex-title">LoJax UEFI Rootkit — APT28 (Fancy Bear)</div>
+          <p class="ex-desc">ESET discovered LoJax, the first confirmed in-the-wild UEFI rootkit, deployed by Russian APT28 against government agencies in the Balkans and Central Europe. Survived hard disk replacement and complete OS reinstallation — the only remediation was reflashing or replacing the motherboard.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>Established nation-state capability to deploy persistent firmware implants. Any AI research infrastructure targeted by APT28 would remain compromised through complete OS rebuilds.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>UEFI write protection must be enforced in hardware (SPI flash write-protect). Software-only firmware protection is insufficient against motivated nation-state actors.</div>
+          </div>
+        </div>
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2024</span><span class="ex-type breach">Breach</span><span class="sev high">High</span></div>
+          <div class="ex-title">PKFail — Secure Boot Platform Key Leak</div>
+          <p class="ex-desc">AMI's test Secure Boot Platform Key was found shipped in production firmware across devices from Acer, Dell, Gigabyte, Intel, and Supermicro — all major AI server vendors. The leaked private key allows signing malicious bootloaders that bypass Secure Boot on all affected devices.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>Hundreds of server models affected globally. All required emergency firmware updates. Attackers with the leaked key could permanently implant below the OS on unpatched systems.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>Production cryptographic key material must never originate from test/development builds. Key ceremonies and strict lifecycle management are essential.</div>
+          </div>
+        </div>
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2022–2023</span><span class="ex-type exploit">Exploit</span><span class="sev high">High</span></div>
+          <div class="ex-title">AMI MegaRAC BMC Vulnerabilities in AI Server Farms</div>
+          <p class="ex-desc">Researchers discovered 9 critical vulnerabilities in AMI MegaRAC BMC firmware used in servers from HPE, Lenovo, Asus, and others. Allowed unauthenticated remote code execution and persistent firmware modification via BMC — without touching the production OS.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>AI cloud providers using affected hardware at scale exposed to complete server takeover via out-of-band management interfaces only.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>BMC management networks must be treated as high-security zones with strict access controls, not administrative convenience interfaces.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-firmware-tools">
+      <div class="tools-g">
+        <div class="tool-c"><div class="tool-n">chipsec</div><div class="tool-d">Intel platform security assessment: UEFI/BIOS security checks, Secure Boot verification, hardware configuration auditing.</div></div>
+        <div class="tool-c"><div class="tool-n">fwupd / LVFS</div><div class="tool-d">Linux Vendor Firmware Service: automated, cryptographically signed firmware updates for BMC, UEFI, and peripherals.</div></div>
+        <div class="tool-c"><div class="tool-n">Binwalk</div><div class="tool-d">Firmware analysis and extraction: extract and compare firmware images from AI hardware for integrity verification.</div></div>
+        <div class="tool-c"><div class="tool-n">OpenBMC</div><div class="tool-d">Open-source BMC firmware project providing a more auditable and secure alternative to proprietary BMC firmware.</div></div>
+        <div class="tool-c"><div class="tool-n">ESET UEFI Scanner</div><div class="tool-d">Dedicated scanner for detecting UEFI-level malware and rootkits in system firmware.</div></div>
+        <div class="tool-c"><div class="tool-n">NIST SP 800-193</div><div class="tool-d">Platform Firmware Resiliency Guidelines — protection, detection, and recovery for firmware integrity.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="layer-arrows">
+    <a href="hardware.html" class="la-btn">← Hardware</a>
+    <a href="os.html"       class="la-btn nxt">Operating System →</a>
+  </div>
+</section>
+
+  </div>
+</div>
+<footer>
+  <div class="foot-in">
+    <div class="foot-g">
+      <div class="foot-brand">
+        <div class="bn">🛡️ AI Security Layers</div>
+        <p>A comprehensive layer-by-layer guide to securing AI systems — from physical hardware to governance frameworks.</p>
+        <p style="margin-top:10px;color:var(--tx3);font-size:.78rem"><a href="index.html" style="color:var(--tx2)">← Back to all layers</a></p>
+      </div>
+      <div class="foot-col">
+        <h4>All Layers</h4>
+        <ul class="foot-links">
+          <li><a href="hardware.html">01 — Hardware</a></li>
+          <li><a href="firmware.html">02 — Firmware / BIOS</a></li>
+          <li><a href="os.html">03 — Operating System</a></li>
+          <li><a href="virt.html">04 — Virtualization</a></li>
+          <li><a href="net.html">05 — Network</a></li>
+          <li><a href="data.html">06 — Data Pipeline</a></li>
+          <li><a href="train.html">07 — Model Training</a></li>
+          <li><a href="infer.html">08 — Model Inference</a></li>
+          <li><a href="app.html">09 — Application / API</a></li>
+          <li><a href="iam.html">10 — Identity &amp; Access</a></li>
+          <li><a href="gov.html">11 — Governance &amp; Ethics</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Key Resources</h4>
+        <ul class="foot-links">
+          <li><a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank" rel="noopener">OWASP Top 10 for LLMs</a></li>
+          <li><a href="https://www.nist.gov/artificial-intelligence/ai-risk-management-framework" target="_blank" rel="noopener">NIST AI RMF</a></li>
+          <li><a href="https://atlas.mitre.org/" target="_blank" rel="noopener">MITRE ATLAS</a></li>
+          <li><a href="https://aisecrisks.arnav.au" target="_blank" rel="noopener">AI Security Risks</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-btm">
+      <p>© 2026 AISecurity.arnav.au — Educational resource on AI security.</p>
+      <p>Part of <a href="https://arnav.au" target="_blank" rel="noopener">arnav.au</a></p>
+    </div>
+  </div>
+</footer>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

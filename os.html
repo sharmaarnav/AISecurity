@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Operating System Security — AI Security Layers</title>
+<meta name="description" content="OS security for AI systems: kernel privilege escalation, exposed Jupyter notebooks, dependency supply chain attacks, and process isolation. Mitigations and real-world examples.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-layer="os">
+<div id="prog"></div>
+<div id="sOv" class="search-ov" role="dialog" aria-modal="true">
+  <button id="sClose" class="s-close">✕</button>
+  <div class="s-box"><input id="sInput" type="text" placeholder="Search risks, attacks, mitigations… (press / anytime)"></div>
+  <div id="sRes" class="s-res"></div>
+</div>
+<div id="mobMenu" class="mob-menu">
+  <button id="mobClose" class="mob-close">✕</button>
+  <p class="sb-title" style="padding-left:0;margin-top:4px">Jump to Layer</p>
+  <ul class="mob-list">
+    <li><a href="hardware.html"><span class="mob-dot" style="background:#ef4444"></span>01 — Hardware</a></li>
+    <li><a href="firmware.html"><span class="mob-dot" style="background:#f97316"></span>02 — Firmware / BIOS</a></li>
+    <li><a href="os.html"><span class="mob-dot" style="background:#eab308"></span>03 — Operating System</a></li>
+    <li><a href="virt.html"><span class="mob-dot" style="background:#22c55e"></span>04 — Virtualization &amp; Containers</a></li>
+    <li><a href="net.html"><span class="mob-dot" style="background:#06b6d4"></span>05 — Network &amp; Infrastructure</a></li>
+    <li><a href="data.html"><span class="mob-dot" style="background:#3b82f6"></span>06 — Data Pipeline</a></li>
+    <li><a href="train.html"><span class="mob-dot" style="background:#6366f1"></span>07 — Model Training</a></li>
+    <li><a href="infer.html"><span class="mob-dot" style="background:#a855f7"></span>08 — Model Inference</a></li>
+    <li><a href="app.html"><span class="mob-dot" style="background:#ec4899"></span>09 — Application &amp; API</a></li>
+    <li><a href="iam.html"><span class="mob-dot" style="background:#14b8a6"></span>10 — Identity &amp; Access</a></li>
+    <li><a href="gov.html"><span class="mob-dot" style="background:#f59e0b"></span>11 — Governance &amp; Ethics</a></li>
+  </ul>
+</div>
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <span class="name">AI <span>Security</span> Layers</span>
+  </a>
+  <div class="nav-chips">
+    <a href="hardware.html" class="chip" data-layer="hardware" style="--lc:#ef4444"><span class="dot" style="background:#ef4444"></span>Hardware</a>
+    <a href="firmware.html" class="chip" data-layer="firmware" style="--lc:#f97316"><span class="dot" style="background:#f97316"></span>Firmware</a>
+    <a href="os.html"       class="chip" data-layer="os"       style="--lc:#eab308"><span class="dot" style="background:#eab308"></span>OS</a>
+    <a href="virt.html"     class="chip" data-layer="virt"     style="--lc:#22c55e"><span class="dot" style="background:#22c55e"></span>Virtualization</a>
+    <a href="net.html"      class="chip" data-layer="net"      style="--lc:#06b6d4"><span class="dot" style="background:#06b6d4"></span>Network</a>
+    <a href="data.html"     class="chip" data-layer="data"     style="--lc:#3b82f6"><span class="dot" style="background:#3b82f6"></span>Data</a>
+    <a href="train.html"    class="chip" data-layer="train"    style="--lc:#6366f1"><span class="dot" style="background:#6366f1"></span>Training</a>
+    <a href="infer.html"    class="chip" data-layer="infer"    style="--lc:#a855f7"><span class="dot" style="background:#a855f7"></span>Inference</a>
+    <a href="app.html"      class="chip" data-layer="app"      style="--lc:#ec4899"><span class="dot" style="background:#ec4899"></span>Application</a>
+    <a href="iam.html"      class="chip" data-layer="iam"      style="--lc:#14b8a6"><span class="dot" style="background:#14b8a6"></span>Identity</a>
+    <a href="gov.html"      class="chip" data-layer="gov"      style="--lc:#f59e0b"><span class="dot" style="background:#f59e0b"></span>Governance</a>
+  </div>
+  <button id="sToggle" class="nav-btn" title="Search (/)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+  <button id="burger" class="nav-btn burger"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</nav>
+<div class="wrap">
+  <aside class="sidebar">
+    <p class="sb-title">Security Layers</p>
+    <ul class="sb-list">
+      <li><a href="hardware.html" class="sb-link" data-layer="hardware"><span class="sb-dot" style="background:#ef4444"></span>Hardware<span class="sb-num">01</span></a></li>
+      <li><a href="firmware.html" class="sb-link" data-layer="firmware"><span class="sb-dot" style="background:#f97316"></span>Firmware / BIOS<span class="sb-num">02</span></a></li>
+      <li><a href="os.html"       class="sb-link" data-layer="os"      ><span class="sb-dot" style="background:#eab308"></span>Operating System<span class="sb-num">03</span></a></li>
+      <li><a href="virt.html"     class="sb-link" data-layer="virt"    ><span class="sb-dot" style="background:#22c55e"></span>Virtualization<span class="sb-num">04</span></a></li>
+      <li><a href="net.html"      class="sb-link" data-layer="net"     ><span class="sb-dot" style="background:#06b6d4"></span>Network<span class="sb-num">05</span></a></li>
+      <li><a href="data.html"     class="sb-link" data-layer="data"    ><span class="sb-dot" style="background:#3b82f6"></span>Data Pipeline<span class="sb-num">06</span></a></li>
+      <li><a href="train.html"    class="sb-link" data-layer="train"   ><span class="sb-dot" style="background:#6366f1"></span>Model Training<span class="sb-num">07</span></a></li>
+      <li><a href="infer.html"    class="sb-link" data-layer="infer"   ><span class="sb-dot" style="background:#a855f7"></span>Model Inference<span class="sb-num">08</span></a></li>
+      <li><a href="app.html"      class="sb-link" data-layer="app"     ><span class="sb-dot" style="background:#ec4899"></span>Application / API<span class="sb-num">09</span></a></li>
+      <li><a href="iam.html"      class="sb-link" data-layer="iam"     ><span class="sb-dot" style="background:#14b8a6"></span>Identity &amp; Access<span class="sb-num">10</span></a></li>
+      <li><a href="gov.html"      class="sb-link" data-layer="gov"     ><span class="sb-dot" style="background:#f59e0b"></span>Governance &amp; Ethics<span class="sb-num">11</span></a></li>
+    </ul>
+  </aside>
+  <div class="content">
+
+<section class="layer" id="layer-os" data-layer="os" style="--lc:#eab308;--lca:rgba(234,179,8,.12)">
+  <div class="layer-head">
+    <span class="layer-num">03</span><span class="layer-ico">🖥️</span>
+    <div class="layer-info">
+      <h2 class="layer-title">Operating System Layer</h2>
+      <p class="layer-desc">The OS manages all hardware resources and provides the execution environment for AI frameworks like TensorFlow, PyTorch, and CUDA. OS-level compromise gives attackers complete control over AI workloads, model files, and training data. AI-specific OS hardening differs significantly from general server hardening due to GPU driver stacks and ML toolchain complexity.</p>
+      <div class="layer-tags">
+        <span class="ltag" style="color:#eab308;border-color:#eab30844">Kernel Security</span>
+        <span class="ltag" style="color:#eab308;border-color:#eab30844">Process Isolation</span>
+        <span class="ltag" style="color:#eab308;border-color:#eab30844">Dependency Security</span>
+        <span class="ltag" style="color:#eab308;border-color:#eab30844">AI Runtime</span>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-layer="os" data-tab="risks"  aria-selected="true" >⚠️ Security Risks</button>
+    <button class="tab"    data-layer="os" data-tab="mits"   aria-selected="false">🛡️ Mitigations</button>
+    <button class="tab"    data-layer="os" data-tab="ex"     aria-selected="false">📰 Real-World Examples</button>
+    <button class="tab"    data-layer="os" data-tab="tools"  aria-selected="false">🔧 Tools &amp; Resources</button>
+  </div>
+  <div class="panels">
+    <div class="panel on" id="p-os-risks">
+      <div class="risks">
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Kernel Privilege Escalation</span><span class="sev critical">Critical</span></div>
+          <p class="risk-desc">Kernel vulnerabilities allow unprivileged AI process users to gain root access, exposing all model weights, training datasets, and system credentials. The AI training environment becomes a launchpad for full system compromise.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>CVE-2021-4034 PwnKit, CVE-2022-0847 Dirty Pipe, CVE-2023-0386 OverlayFS all weaponised against AI infrastructure. NVIDIA GPU driver vulnerabilities also create OS-level privilege escalation paths from unprivileged CUDA processes.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Exposed AI Development Environments</span><span class="sev high">High</span></div>
+          <p class="risk-desc">Jupyter Notebooks, JupyterLab, MLflow, and Gradio apps running without authentication on public IP addresses. Security scans consistently find thousands of live, exploitable AI development environments on the internet.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>Jupyter's default config binds to 0.0.0.0 with no password. A single misconfigured AWS Security Group exposes the notebook to the world — providing code execution as the notebook user, access to all model files, training data, and cloud credentials stored in environment variables.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">AI Dependency Supply Chain Attacks</span><span class="sev high">High</span></div>
+          <p class="risk-desc">Malicious Python packages on PyPI mimicking legitimate AI/ML libraries via typosquatting, dependency confusion, or account takeover. Requirements.txt files with unpinned versions automatically install malicious updates.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>PyPI packages commonly targeted: torch variants, tensorflow-gpu variants, sklearn/scikit-learn, transformers, langchain. pip install without --require-hashes provides zero integrity guarantee. The torchtriton dependency confusion attack (2023) compromised researchers at Meta, Google, and Microsoft.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Insufficient AI Process Isolation</span><span class="sev medium">Medium</span></div>
+          <p class="risk-desc">AI training jobs running as root, world-readable model checkpoint files in /tmp, shared filesystem paths between different customers in multi-tenant environments, and over-privileged AI service accounts create lateral movement opportunities.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>Common misconfigs: CUDA processes run as root as a shortcut; training scripts write checkpoints to /tmp with 777 permissions; model serving Flask apps run as root for port 80; service accounts with cluster-wide storage access instead of namespace-scoped permissions.</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-os-mits">
+      <div class="mits">
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">🔧</div><span class="mit-name">OS Hardening for AI Servers</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Apply CIS Benchmark Level 2 for Ubuntu/RHEL AI server configurations; use OpenSCAP for automated checking</span></li>
+            <li><span class="snum">2</span><span>Enable kernel security features: ASLR (randomize_va_space=2), NX bit, Stack Canaries, kernel lockdown for inference servers</span></li>
+            <li><span class="snum">3</span><span>Implement automated kernel security patching (unattended-upgrades for security updates only)</span></li>
+            <li><span class="snum">4</span><span>Minimise OS footprint: install only packages required for the AI workload; remove all dev tools from production inference servers</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">Lynis</span><span class="ttag">OpenSCAP</span><span class="ttag">CIS-CAT</span></div>
+        </div>
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">🔐</div><span class="mit-name">Secure Jupyter &amp; AI Dev Environments</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Never expose Jupyter directly to the internet — bind to 127.0.0.1 only and use SSH tunnelling for remote access</span></li>
+            <li><span class="snum">2</span><span>Enable Jupyter token authentication and HTTPS in all cases; use JupyterHub with OAuth for multi-user environments</span></li>
+            <li><span class="snum">3</span><span>Implement firewall rules as defence-in-depth; audit cloud Security Groups and network ACLs weekly</span></li>
+            <li><span class="snum">4</span><span>Conduct periodic self-scans with Shodan/Censys to discover any accidentally exposed AI services</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">JupyterHub</span><span class="ttag">NGINX</span><span class="ttag">fail2ban</span></div>
+        </div>
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">📦</div><span class="mit-name">Python Dependency Security</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Use pip-compile with --generate-hashes to create hash-pinned requirements files; enforce --require-hashes in production</span></li>
+            <li><span class="snum">2</span><span>Run pip-audit or Safety in CI/CD pipelines to check for known CVEs in all AI dependencies</span></li>
+            <li><span class="snum">3</span><span>Use a private PyPI mirror (Artifactory, Nexus) for production AI environments; block direct PyPI access</span></li>
+            <li><span class="snum">4</span><span>Generate SBOMs for AI training environments using syft; track all transitive dependencies</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">pip-audit</span><span class="ttag">pip-tools</span><span class="ttag">syft</span><span class="ttag">Snyk</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-os-ex">
+      <div class="exs">
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2019–Present</span><span class="ex-type breach">Breach</span><span class="sev high">High</span></div>
+          <div class="ex-title">Thousands of Exposed Jupyter Notebooks (Ongoing)</div>
+          <p class="ex-desc">Security researchers using Shodan and Censys consistently find 10,000+ publicly accessible Jupyter notebooks with no authentication. Contents discovered include: active ML training jobs, model weights, AWS/GCP credentials in environment variables, database connection strings, and proprietary ML code from Fortune 500 companies.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>Medical AI models with patient data, financial trading algorithms, and autonomous vehicle training datasets all found in exposed notebooks. Full code execution on Fortune 500 AI infrastructure via single misconfigured security group.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>Jupyter must never bind to 0.0.0.0. This is the single most common AI infrastructure security failure. Use SSH tunnelling or VPN — no exceptions.</div>
+          </div>
+        </div>
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2023</span><span class="ex-type breach">Breach</span><span class="sev high">High</span></div>
+          <div class="ex-title">PyTorch Nightly Dependency Confusion Attack</div>
+          <p class="ex-desc">A malicious "torchtriton" package uploaded to PyPI — matching the name of a legitimate PyTorch internal package served from a private index. PyTorch nightly build users downloaded and executed the malicious package, which contained a reverse shell payload and SSH key stealer.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>Researchers at Meta, Google, Microsoft, and thousands of independents affected. Meta responded within hours. Demonstrated the --extra-index-url attack vector is widely exploitable.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>Use conda or a private PyPI mirror for AI packages. The --extra-index-url flag is unsafe by design — PyPI can override your private index.</div>
+          </div>
+        </div>
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2023</span><span class="ex-type breach">Breach</span><span class="sev high">High</span></div>
+          <div class="ex-title">Tesla Autopilot Model Theft via OS Access</div>
+          <p class="ex-desc">A former Tesla software engineer was charged with stealing 26,000+ files including Autopilot neural network weights, source code, and training data using his legitimate OS-level access before termination. Exfiltrated via USB drive and personal cloud storage. Files later found on a Chinese autonomous vehicle company's servers.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>Demonstrated the insider threat vector — no exploitation required, just privileged OS access and inadequate DLP controls. Potential transfer of billions in AI IP.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>DLP tools must monitor transfers of model weight files (*.pt, *.ckpt, *.h5). Offboarding procedures must include immediate revocation and forensic review of recent data transfers.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-os-tools">
+      <div class="tools-g">
+        <div class="tool-c"><div class="tool-n">Lynis</div><div class="tool-d">Comprehensive Unix/Linux security auditing; detailed OS hardening recommendations for AI servers.</div></div>
+        <div class="tool-c"><div class="tool-n">OpenSCAP</div><div class="tool-d">Automated CIS Benchmark compliance checking for OS configuration on AI server baselines.</div></div>
+        <div class="tool-c"><div class="tool-n">pip-audit</div><div class="tool-d">Audits Python packages for known CVEs from OSV, PyPA, and GitHub Advisory databases.</div></div>
+        <div class="tool-c"><div class="tool-n">syft / grype</div><div class="tool-d">SBOM generation (syft) and vulnerability scanning (grype) for Python virtual environments and containers.</div></div>
+        <div class="tool-c"><div class="tool-n">Falco</div><div class="tool-d">Runtime security: detects unexpected syscalls, file access, and process execution in AI workload environments.</div></div>
+        <div class="tool-c"><div class="tool-n">AIDE / Tripwire</div><div class="tool-d">File integrity monitoring for AI model weights, training data directories, and system configuration files.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="layer-arrows">
+    <a href="firmware.html" class="la-btn">← Firmware / BIOS</a>
+    <a href="virt.html"     class="la-btn nxt">Virtualization →</a>
+  </div>
+</section>
+
+  </div>
+</div>
+<footer>
+  <div class="foot-in">
+    <div class="foot-g">
+      <div class="foot-brand"><div class="bn">🛡️ AI Security Layers</div><p>A comprehensive layer-by-layer guide to securing AI systems.</p><p style="margin-top:10px;color:var(--tx3);font-size:.78rem"><a href="index.html" style="color:var(--tx2)">← Back to all layers</a></p></div>
+      <div class="foot-col"><h4>All Layers</h4><ul class="foot-links"><li><a href="hardware.html">01 — Hardware</a></li><li><a href="firmware.html">02 — Firmware / BIOS</a></li><li><a href="os.html">03 — Operating System</a></li><li><a href="virt.html">04 — Virtualization</a></li><li><a href="net.html">05 — Network</a></li><li><a href="data.html">06 — Data Pipeline</a></li><li><a href="train.html">07 — Model Training</a></li><li><a href="infer.html">08 — Model Inference</a></li><li><a href="app.html">09 — Application / API</a></li><li><a href="iam.html">10 — Identity &amp; Access</a></li><li><a href="gov.html">11 — Governance &amp; Ethics</a></li></ul></div>
+      <div class="foot-col"><h4>Key Resources</h4><ul class="foot-links"><li><a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank" rel="noopener">OWASP Top 10 for LLMs</a></li><li><a href="https://www.nist.gov/artificial-intelligence/ai-risk-management-framework" target="_blank" rel="noopener">NIST AI RMF</a></li><li><a href="https://atlas.mitre.org/" target="_blank" rel="noopener">MITRE ATLAS</a></li></ul></div>
+    </div>
+    <div class="foot-btm"><p>© 2026 AISecurity.arnav.au</p><p>Part of <a href="https://arnav.au" target="_blank" rel="noopener">arnav.au</a></p></div>
+  </div>
+</footer>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

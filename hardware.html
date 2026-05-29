@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hardware Security — AI Security Layers</title>
+<meta name="description" content="Hardware security risks for AI systems: supply chain trojans, side-channel attacks, cold boot, and debug interface vulnerabilities. Mitigations and real-world examples.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-layer="hardware">
+<div id="prog"></div>
+<div id="sOv" class="search-ov" role="dialog" aria-modal="true">
+  <button id="sClose" class="s-close">✕</button>
+  <div class="s-box"><input id="sInput" type="text" placeholder="Search risks, attacks, mitigations… (press / anytime)"></div>
+  <div id="sRes" class="s-res"></div>
+</div>
+<div id="mobMenu" class="mob-menu">
+  <button id="mobClose" class="mob-close">✕</button>
+  <p class="sb-title" style="padding-left:0;margin-top:4px">Jump to Layer</p>
+  <ul class="mob-list">
+    <li><a href="hardware.html"><span class="mob-dot" style="background:#ef4444"></span>01 — Hardware</a></li>
+    <li><a href="firmware.html"><span class="mob-dot" style="background:#f97316"></span>02 — Firmware / BIOS</a></li>
+    <li><a href="os.html"><span class="mob-dot" style="background:#eab308"></span>03 — Operating System</a></li>
+    <li><a href="virt.html"><span class="mob-dot" style="background:#22c55e"></span>04 — Virtualization &amp; Containers</a></li>
+    <li><a href="net.html"><span class="mob-dot" style="background:#06b6d4"></span>05 — Network &amp; Infrastructure</a></li>
+    <li><a href="data.html"><span class="mob-dot" style="background:#3b82f6"></span>06 — Data Pipeline</a></li>
+    <li><a href="train.html"><span class="mob-dot" style="background:#6366f1"></span>07 — Model Training</a></li>
+    <li><a href="infer.html"><span class="mob-dot" style="background:#a855f7"></span>08 — Model Inference</a></li>
+    <li><a href="app.html"><span class="mob-dot" style="background:#ec4899"></span>09 — Application &amp; API</a></li>
+    <li><a href="iam.html"><span class="mob-dot" style="background:#14b8a6"></span>10 — Identity &amp; Access</a></li>
+    <li><a href="gov.html"><span class="mob-dot" style="background:#f59e0b"></span>11 — Governance &amp; Ethics</a></li>
+  </ul>
+</div>
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <span class="name">AI <span>Security</span> Layers</span>
+  </a>
+  <div class="nav-chips">
+    <a href="hardware.html" class="chip" data-layer="hardware" style="--lc:#ef4444"><span class="dot" style="background:#ef4444"></span>Hardware</a>
+    <a href="firmware.html" class="chip" data-layer="firmware" style="--lc:#f97316"><span class="dot" style="background:#f97316"></span>Firmware</a>
+    <a href="os.html"       class="chip" data-layer="os"       style="--lc:#eab308"><span class="dot" style="background:#eab308"></span>OS</a>
+    <a href="virt.html"     class="chip" data-layer="virt"     style="--lc:#22c55e"><span class="dot" style="background:#22c55e"></span>Virtualization</a>
+    <a href="net.html"      class="chip" data-layer="net"      style="--lc:#06b6d4"><span class="dot" style="background:#06b6d4"></span>Network</a>
+    <a href="data.html"     class="chip" data-layer="data"     style="--lc:#3b82f6"><span class="dot" style="background:#3b82f6"></span>Data</a>
+    <a href="train.html"    class="chip" data-layer="train"    style="--lc:#6366f1"><span class="dot" style="background:#6366f1"></span>Training</a>
+    <a href="infer.html"    class="chip" data-layer="infer"    style="--lc:#a855f7"><span class="dot" style="background:#a855f7"></span>Inference</a>
+    <a href="app.html"      class="chip" data-layer="app"      style="--lc:#ec4899"><span class="dot" style="background:#ec4899"></span>Application</a>
+    <a href="iam.html"      class="chip" data-layer="iam"      style="--lc:#14b8a6"><span class="dot" style="background:#14b8a6"></span>Identity</a>
+    <a href="gov.html"      class="chip" data-layer="gov"      style="--lc:#f59e0b"><span class="dot" style="background:#f59e0b"></span>Governance</a>
+  </div>
+  <button id="sToggle" class="nav-btn" title="Search (/)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+  <button id="burger" class="nav-btn burger"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</nav>
+<div class="wrap">
+  <aside class="sidebar">
+    <p class="sb-title">Security Layers</p>
+    <ul class="sb-list">
+      <li><a href="hardware.html" class="sb-link" data-layer="hardware"><span class="sb-dot" style="background:#ef4444"></span>Hardware<span class="sb-num">01</span></a></li>
+      <li><a href="firmware.html" class="sb-link" data-layer="firmware"><span class="sb-dot" style="background:#f97316"></span>Firmware / BIOS<span class="sb-num">02</span></a></li>
+      <li><a href="os.html"       class="sb-link" data-layer="os"      ><span class="sb-dot" style="background:#eab308"></span>Operating System<span class="sb-num">03</span></a></li>
+      <li><a href="virt.html"     class="sb-link" data-layer="virt"    ><span class="sb-dot" style="background:#22c55e"></span>Virtualization<span class="sb-num">04</span></a></li>
+      <li><a href="net.html"      class="sb-link" data-layer="net"     ><span class="sb-dot" style="background:#06b6d4"></span>Network<span class="sb-num">05</span></a></li>
+      <li><a href="data.html"     class="sb-link" data-layer="data"    ><span class="sb-dot" style="background:#3b82f6"></span>Data Pipeline<span class="sb-num">06</span></a></li>
+      <li><a href="train.html"    class="sb-link" data-layer="train"   ><span class="sb-dot" style="background:#6366f1"></span>Model Training<span class="sb-num">07</span></a></li>
+      <li><a href="infer.html"    class="sb-link" data-layer="infer"   ><span class="sb-dot" style="background:#a855f7"></span>Model Inference<span class="sb-num">08</span></a></li>
+      <li><a href="app.html"      class="sb-link" data-layer="app"     ><span class="sb-dot" style="background:#ec4899"></span>Application / API<span class="sb-num">09</span></a></li>
+      <li><a href="iam.html"      class="sb-link" data-layer="iam"     ><span class="sb-dot" style="background:#14b8a6"></span>Identity &amp; Access<span class="sb-num">10</span></a></li>
+      <li><a href="gov.html"      class="sb-link" data-layer="gov"     ><span class="sb-dot" style="background:#f59e0b"></span>Governance &amp; Ethics<span class="sb-num">11</span></a></li>
+    </ul>
+  </aside>
+  <div class="content">
+
+<section class="layer" id="layer-hardware" data-layer="hardware" style="--lc:#ef4444;--lca:rgba(239,68,68,.12)">
+  <div class="layer-head">
+    <span class="layer-num">01</span>
+    <span class="layer-ico">⚙️</span>
+    <div class="layer-info">
+      <h2 class="layer-title">Hardware Layer</h2>
+      <p class="layer-desc">The physical foundation of every AI system — GPUs, TPUs, CPUs, memory, and AI accelerators. Physical security is the bedrock all other layers depend on. A compromised hardware layer makes every software-level protection meaningless.</p>
+      <div class="layer-tags">
+        <span class="ltag" style="color:#ef4444;border-color:#ef444444">Supply Chain</span>
+        <span class="ltag" style="color:#ef4444;border-color:#ef444444">Side-Channel</span>
+        <span class="ltag" style="color:#ef4444;border-color:#ef444444">TPM</span>
+        <span class="ltag" style="color:#ef4444;border-color:#ef444444">GPU Security</span>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on"  data-layer="hardware" data-tab="risks"   aria-selected="true" >⚠️ Security Risks</button>
+    <button class="tab"     data-layer="hardware" data-tab="mits"    aria-selected="false">🛡️ Mitigations</button>
+    <button class="tab"     data-layer="hardware" data-tab="ex"      aria-selected="false">📰 Real-World Examples</button>
+    <button class="tab"     data-layer="hardware" data-tab="tools"   aria-selected="false">🔧 Tools &amp; Resources</button>
+  </div>
+  <div class="panels">
+    <div class="panel on" id="p-hardware-risks">
+      <div class="risks">
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Supply Chain Hardware Trojans</span><span class="sev critical">Critical</span></div>
+          <p class="risk-desc">Malicious hardware implants inserted during chip manufacturing or assembly. Near-impossible to detect post-manufacturing. A compromised GPU or AI accelerator can silently exfiltrate model weights, introduce computation errors, or act as a kill-switch activated remotely.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>Hidden circuitry at silicon level can trigger under specific instruction sequences. Nation-state actors and sophisticated groups target AI chip supply chains. Grey-market GPU procurement poses the greatest risk for ML training farms.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Side-Channel Attacks</span><span class="sev high">High</span></div>
+          <p class="risk-desc">Extracting secrets by measuring power consumption, electromagnetic radiation, or timing differences during AI computation. Can recover model weights and private training data without any software vulnerability.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>Differential Power Analysis (DPA) reconstructs neural network parameters from GPU power traces. Cache timing attacks reveal model architecture. EM probing of AI accelerators during inference leaks intermediate activation values. Hertzbleed-style frequency attacks affect DVFS-enabled processors.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Cold Boot &amp; Physical Tampering</span><span class="sev high">High</span></div>
+          <p class="risk-desc">Direct physical access enables DRAM content extraction after power loss (cold boot), JTAG debug port exploitation for direct memory read/write, and voltage/clock glitching to bypass security checks on AI edge devices.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>LPDDR4/5 RAM retains data for seconds to minutes after power removal; cooling with liquid nitrogen extends this to hours. Rowhammer attacks via crafted memory access patterns can flip bits in stored model parameters.</div>
+        </div>
+        <div class="risk">
+          <div class="risk-top"><span class="risk-name">Insecure Debug Interfaces</span><span class="sev medium">Medium</span></div>
+          <p class="risk-desc">JTAG, SWD, and UART debug interfaces left enabled on production AI hardware allow direct memory access without software authentication. Brief physical access is enough to extract complete model weights and system secrets.</p>
+          <div class="risk-tech"><strong>Technical Detail</strong>Many AI edge devices (Jetson Nano, Coral TPU, custom ASIC boards) ship with debug interfaces enabled for developer convenience. JTAG provides full control — memory read/write, breakpoints, register access — with no authentication at the hardware level.</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-hardware-mits">
+      <div class="mits">
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">🏭</div><span class="mit-name">Trusted Supply Chain Management</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Maintain a Hardware Bill of Materials (HBOM) for all AI computing components; source only from authorised distributors</span></li>
+            <li><span class="snum">2</span><span>Require vendor hardware security attestation and certifications (CC EAL, FIPS 140-3) for AI accelerators</span></li>
+            <li><span class="snum">3</span><span>Implement incoming hardware inspection with X-ray and electrical testing for critical deployments</span></li>
+            <li><span class="snum">4</span><span>Follow NIST SP 800-161 Cybersecurity Supply Chain Risk Management practices</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">TPM 2.0</span><span class="ttag">FIPS 140-3</span><span class="ttag">NIST SP 800-161</span></div>
+        </div>
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">🔒</div><span class="mit-name">Memory Encryption &amp; Side-Channel Hardening</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Enable AMD Secure Memory Encryption (SME) or Intel Total Memory Encryption (TME) on all AI servers</span></li>
+            <li><span class="snum">2</span><span>Use AMD SEV or Intel TDX for AI workloads in virtualised/cloud environments</span></li>
+            <li><span class="snum">3</span><span>Apply EMI shielding to GPU/TPU enclosures in sensitive deployments; install power line filters</span></li>
+            <li><span class="snum">4</span><span>Prefer constant-time implementations for any cryptographic operations protecting AI model keys</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">AMD SME/SEV</span><span class="ttag">Intel TME/TDX</span><span class="ttag">NVIDIA Confidential Computing</span></div>
+        </div>
+        <div class="mit">
+          <div class="mit-top"><div class="mit-ico">🔌</div><span class="mit-name">Debug Interface Hardening</span></div>
+          <ul class="mit-steps">
+            <li><span class="snum">1</span><span>Permanently disable JTAG/SWD via fuse blowing or hardware write-protect before production deployment</span></li>
+            <li><span class="snum">2</span><span>Conduct regular hardware security audits to verify debug interfaces are disabled on all AI inference hardware</span></li>
+            <li><span class="snum">3</span><span>Use tamper-detecting enclosures that erase keys if the device is physically opened</span></li>
+          </ul>
+          <div class="tool-tags"><span class="ttag">chipsec</span><span class="ttag">OpenOCD (for audit)</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-hardware-ex">
+      <div class="exs">
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2018</span><span class="ex-type breach">Breach</span><span class="sev critical">Critical</span></div>
+          <div class="ex-title">Bloomberg Supermicro Server Implant Allegations</div>
+          <p class="ex-desc">Bloomberg reported that Chinese intelligence agencies planted microchips smaller than a pencil tip on Supermicro server motherboards used by Apple and Amazon AWS. While disputed, it triggered massive supply chain security reviews industry-wide and prompted Congressional hearings on hardware supply chain risk.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>Supermicro stock fell 50%. Both Apple and Amazon denied the report. US intelligence investigated. Regardless of truth, exposed how hardware supply chain attacks are plausible at scale.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>Hardware supply chain verification is existentially important. Even unproven allegations reveal how systemic hardware risk is to AI infrastructure.</div>
+          </div>
+        </div>
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2021</span><span class="ex-type research">Research</span><span class="sev high">High</span></div>
+          <div class="ex-title">GPU Side-Channel Neural Network Extraction</div>
+          <p class="ex-desc">University of North Carolina researchers demonstrated extracting complete DNN model parameters — weights and architecture — from GPU memory side channels alone. No software vulnerability required. Achieved &gt;99% reconstruction accuracy using only physical proximity and power measurement equipment.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>AI model IP can be stolen from GPU hardware observable signals without any code access. Forced rethink of "air-gapped" AI model security guarantees.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>Software access controls alone cannot protect model IP. Hardware-level memory encryption for AI accelerators is necessary.</div>
+          </div>
+        </div>
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2022</span><span class="ex-type research">Research</span><span class="sev high">High</span></div>
+          <div class="ex-title">Hertzbleed CPU Frequency Side-Channel</div>
+          <p class="ex-desc">Intel and AMD CPUs found vulnerable to Hertzbleed — a frequency side-channel exploiting Dynamic Voltage and Frequency Scaling (DVFS). Attackers can remotely measure CPU frequency variations to extract cryptographic keys protecting AI model weights, requiring no physical access.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>All modern Intel and AMD processors affected. Microcode updates released. Power management features in AI accelerators introduce previously unknown side channels.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>AI accelerator power optimisations introduce side channels. Constant-power-draw mitigations and cryptographic library updates are required.</div>
+          </div>
+        </div>
+        <div class="ex">
+          <div class="ex-meta"><span class="ex-date">2023</span><span class="ex-type research">Research</span><span class="sev medium">Medium</span></div>
+          <div class="ex-title">Cold Boot Attacks on AI Edge Devices</div>
+          <p class="ex-desc">Researchers recovered AI model weights from NVIDIA Jetson Nano and Raspberry Pi with Coral TPU devices by freezing LPDDR4 memory modules and reading contents minutes after power removal — demonstrating that edge AI deployments have no protection against physical memory extraction.</p>
+          <div class="ex-grid">
+            <div class="ex-cell"><strong>Impact</strong>Full model weight recovery from deployed edge inference devices. Edge AI security cannot rely on data deletion at shutdown.</div>
+            <div class="ex-cell"><strong>Key Lesson</strong>Edge AI deployments require hardware-level memory encryption. LPDDR5 with inline encryption is minimum for high-value deployments.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="p-hardware-tools">
+      <div class="tools-g">
+        <div class="tool-c"><div class="tool-n">tpm2-tools</div><div class="tool-d">Linux userspace tools for TPM 2.0: attestation, key management, hardware root of trust operations.</div></div>
+        <div class="tool-c"><div class="tool-n">chipsec</div><div class="tool-d">Intel platform security framework: BIOS/UEFI checks, memory protection, hardware configuration auditing.</div></div>
+        <div class="tool-c"><div class="tool-n">AMD SME/SEV</div><div class="tool-d">Secure Memory Encryption and Secure Encrypted Virtualisation for AI workload memory protection at hardware level.</div></div>
+        <div class="tool-c"><div class="tool-n">Intel TDX / SGX</div><div class="tool-d">Trust Domain Extensions and Software Guard Extensions for confidential AI computing in cloud environments.</div></div>
+        <div class="tool-c"><div class="tool-n">Binwalk</div><div class="tool-d">Firmware analysis and extraction tool; inspect AI hardware firmware for malicious modifications.</div></div>
+        <div class="tool-c"><div class="tool-n">NIST SP 800-161</div><div class="tool-d">Cybersecurity Supply Chain Risk Management Practices for Systems and Organisations — the gold standard reference.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="layer-arrows">
+    <a href="index.html" class="la-btn">← All Layers</a>
+    <a href="firmware.html" class="la-btn nxt">Firmware / BIOS →</a>
+  </div>
+</section>
+
+  </div>
+</div>
+<footer>
+  <div class="foot-in">
+    <div class="foot-g">
+      <div class="foot-brand">
+        <div class="bn">🛡️ AI Security Layers</div>
+        <p>A comprehensive layer-by-layer guide to securing AI systems — from physical hardware to governance frameworks.</p>
+        <p style="margin-top:10px;color:var(--tx3);font-size:.78rem"><a href="index.html" style="color:var(--tx2)">← Back to all layers</a></p>
+      </div>
+      <div class="foot-col">
+        <h4>All Layers</h4>
+        <ul class="foot-links">
+          <li><a href="hardware.html">01 — Hardware</a></li>
+          <li><a href="firmware.html">02 — Firmware / BIOS</a></li>
+          <li><a href="os.html">03 — Operating System</a></li>
+          <li><a href="virt.html">04 — Virtualization</a></li>
+          <li><a href="net.html">05 — Network</a></li>
+          <li><a href="data.html">06 — Data Pipeline</a></li>
+          <li><a href="train.html">07 — Model Training</a></li>
+          <li><a href="infer.html">08 — Model Inference</a></li>
+          <li><a href="app.html">09 — Application / API</a></li>
+          <li><a href="iam.html">10 — Identity &amp; Access</a></li>
+          <li><a href="gov.html">11 — Governance &amp; Ethics</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Key Resources</h4>
+        <ul class="foot-links">
+          <li><a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank" rel="noopener">OWASP Top 10 for LLMs</a></li>
+          <li><a href="https://www.nist.gov/artificial-intelligence/ai-risk-management-framework" target="_blank" rel="noopener">NIST AI RMF</a></li>
+          <li><a href="https://atlas.mitre.org/" target="_blank" rel="noopener">MITRE ATLAS</a></li>
+          <li><a href="https://aisecrisks.arnav.au" target="_blank" rel="noopener">AI Security Risks</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-btm">
+      <p>© 2026 AISecurity.arnav.au — Educational resource on AI security.</p>
+      <p>Part of <a href="https://arnav.au" target="_blank" rel="noopener">arnav.au</a></p>
+    </div>
+  </div>
+</footer>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

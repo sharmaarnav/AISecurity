@@ -31,7 +31,11 @@
     });
   }
 
-  if('IntersectionObserver' in window){
+  /* on individual layer pages, activate via body attribute; on index use IntersectionObserver */
+  const bodyLayer = document.body.dataset.layer;
+  if(bodyLayer){
+    activateLayer(bodyLayer);
+  } else if('IntersectionObserver' in window){
     const obs = new IntersectionObserver(entries=>{
       entries.forEach(e=>{ if(e.isIntersecting) activateLayer(e.target.dataset.layer); });
     },{rootMargin:'-30% 0px -60% 0px',threshold:0});
@@ -81,8 +85,7 @@
     const lid   = sec.dataset.layer;
     const lname = (sec.querySelector('.layer-title')||{}).textContent||lid;
     const col   = getComputedStyle(sec).getPropertyValue('--lc').trim()||'#00d4ff';
-    ['.risk-name','risk-name'].forEach(()=>{});
-    sec.querySelectorAll('.risk-name').forEach(el=>idx.push({type:'Risk',  layer:lname,lid,col,text:el.textContent.trim(),href:'#layer-'+lid}));
+    sec.querySelectorAll('.risk-name').forEach(el=>idx.push({type:'Risk',layer:lname,lid,col,text:el.textContent.trim(),href:'#layer-'+lid}));
     sec.querySelectorAll('.ex-title' ).forEach(el=>idx.push({type:'Example',layer:lname,lid,col,text:el.textContent.trim(),href:'#layer-'+lid}));
     sec.querySelectorAll('.mit-name' ).forEach(el=>idx.push({type:'Mitigation',layer:lname,lid,col,text:el.textContent.trim(),href:'#layer-'+lid}));
   });
