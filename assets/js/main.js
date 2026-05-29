@@ -1,203 +1,126 @@
-/* AI Security Layers — Interactive JS */
-(function () {
+/* AISecurity.arnav.au — interactive layer guide */
+(function(){
   'use strict';
 
-  // ── Scroll progress bar ───────────────────────────────────────
-  const progressBar = document.getElementById('scroll-progress');
-  function updateProgress() {
-    const scrolled = window.scrollY;
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    if (progressBar) progressBar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+  /* scroll progress */
+  const prog = document.getElementById('prog');
+  function tick(){
+    const max = document.documentElement.scrollHeight - innerHeight;
+    if(prog) prog.style.width = (max>0?(scrollY/max)*100:0)+'%';
   }
-  window.addEventListener('scroll', updateProgress, { passive: true });
+  addEventListener('scroll', tick, {passive:true});
 
-  // ── Active layer tracking (Intersection Observer) ─────────────
-  const layerSections = document.querySelectorAll('.layer-section');
-  const sidebarLinks  = document.querySelectorAll('.sidebar-layer-link');
-  const navChips      = document.querySelectorAll('.nav-layer-chip');
+  /* active layer tracking */
+  const sections   = document.querySelectorAll('.layer');
+  const sbLinks    = document.querySelectorAll('.sb-link');
+  const navChips   = document.querySelectorAll('.chip');
 
-  function setActiveLayer(id) {
-    sidebarLinks.forEach(l => {
-      l.classList.toggle('active', l.dataset.layer === id);
-      if (l.dataset.layer === id) {
-        const color = getComputedStyle(l).getPropertyValue('--layer-color').trim();
-        l.style.borderLeftColor = color;
-      } else {
-        l.style.borderLeftColor = 'transparent';
-      }
+  function activateLayer(id){
+    sbLinks.forEach(l=>{
+      const on = l.dataset.layer===id;
+      l.classList.toggle('on',on);
+      l.style.borderLeftColor = on ? (l.querySelector('.sb-dot')||{}).style.background||'#00d4ff' : 'transparent';
     });
-    navChips.forEach(c => {
-      const isActive = c.dataset.layer === id;
-      c.classList.toggle('active', isActive);
-      if (isActive) {
-        const dot = c.querySelector('.chip-dot');
-        c.style.color = dot ? dot.style.background : '';
-        c.style.borderColor = dot ? dot.style.background : '';
-        c.style.background = 'rgba(255,255,255,0.05)';
-      } else {
-        c.style.color = '';
-        c.style.borderColor = '';
-        c.style.background = '';
+    navChips.forEach(c=>{
+      const on = c.dataset.layer===id;
+      c.classList.toggle('on',on);
+      if(on){
+        const col=(c.querySelector('.dot')||{}).style.background||'#00d4ff';
+        c.style.setProperty('--lc',col);
       }
     });
   }
 
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setActiveLayer(entry.target.dataset.layer);
-        }
-      });
-    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
-    layerSections.forEach(s => observer.observe(s));
+  if('IntersectionObserver' in window){
+    const obs = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting) activateLayer(e.target.dataset.layer); });
+    },{rootMargin:'-30% 0px -60% 0px',threshold:0});
+    sections.forEach(s=>obs.observe(s));
   }
 
-  // ── Tab switching ─────────────────────────────────────────────
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
+  /* tabs */
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', function(){
       const layer   = this.dataset.layer;
       const tabName = this.dataset.tab;
-      const wrapper = this.closest('.tab-content-wrapper') || document.querySelector(`#layer-${layer}`);
+      const section = document.getElementById('layer-'+layer);
+      if(!section) return;
 
-      // Deactivate all tabs in this layer
-      const allBtns = this.closest('.tab-nav').querySelectorAll('.tab-btn');
-      allBtns.forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
+      section.querySelectorAll('.tab').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-selected','false');});
+      this.classList.add('on');
+      this.setAttribute('aria-selected','true');
 
-      // Activate clicked tab button
-      this.classList.add('active');
-      this.setAttribute('aria-selected', 'true');
-
-      // Deactivate all panels for this layer
-      const section = document.getElementById('layer-' + layer);
-      if (section) {
-        section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        const target = section.querySelector('#' + layer + '-' + tabName);
-        if (target) target.classList.add('active');
-      }
+      section.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+      const panel = section.querySelector('#p-'+layer+'-'+tabName);
+      if(panel) panel.classList.add('on');
     });
   });
 
-  // ── Search ────────────────────────────────────────────────────
-  const searchToggle  = document.getElementById('searchToggle');
-  const searchClose   = document.getElementById('searchClose');
-  const searchOverlay = document.getElementById('searchOverlay');
-  const searchInput   = document.getElementById('searchInput');
-  const searchResults = document.getElementById('searchResults');
+  /* search */
+  const sToggle = document.getElementById('sToggle');
+  const sClose  = document.getElementById('sClose');
+  const sOv     = document.getElementById('sOv');
+  const sInput  = document.getElementById('sInput');
+  const sRes    = document.getElementById('sRes');
 
-  function openSearch() {
-    searchOverlay.classList.add('open');
-    setTimeout(() => searchInput && searchInput.focus(), 100);
-  }
+  function openSearch(){sOv.classList.add('open');setTimeout(()=>sInput&&sInput.focus(),80);}
+  function closeSearch(){sOv.classList.remove('open');if(sInput)sInput.value='';if(sRes)sRes.innerHTML='';}
 
-  function closeSearch() {
-    searchOverlay.classList.remove('open');
-    if (searchInput) searchInput.value = '';
-    if (searchResults) searchResults.innerHTML = '';
-  }
+  if(sToggle) sToggle.addEventListener('click',openSearch);
+  if(sClose)  sClose.addEventListener('click',closeSearch);
+  if(sOv) sOv.addEventListener('click',e=>{if(e.target===sOv)closeSearch();});
 
-  if (searchToggle) searchToggle.addEventListener('click', openSearch);
-  if (searchClose) searchClose.addEventListener('click', closeSearch);
-
-  document.addEventListener('keydown', e => {
-    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
-      e.preventDefault();
-      openSearch();
-    }
-    if (e.key === 'Escape') closeSearch();
+  document.addEventListener('keydown',e=>{
+    if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();openSearch();}
+    if(e.key==='Escape') closeSearch();
   });
 
-  // Search index — built from all risk titles and example titles visible in DOM
-  const searchIndex = [];
-  document.querySelectorAll('.layer-section').forEach(section => {
-    const layerId   = section.id.replace('layer-', '');
-    const layerName = section.querySelector('.layer-title') ? section.querySelector('.layer-title').textContent : layerId;
-    const color     = section.querySelector('.layer-header-block') ?
-      getComputedStyle(section.querySelector('.layer-header-block')).getPropertyValue('--layer-color').trim() : '#00d4ff';
-
-    section.querySelectorAll('.risk-title').forEach(el => {
-      searchIndex.push({ type: 'Risk', layer: layerName, layerId, color, title: el.textContent.trim(), anchor: '#' + section.id });
-    });
-    section.querySelectorAll('.example-title').forEach(el => {
-      searchIndex.push({ type: 'Example', layer: layerName, layerId, color, title: el.textContent.trim(), anchor: '#' + section.id });
-    });
-    section.querySelectorAll('.mitigation-title').forEach(el => {
-      searchIndex.push({ type: 'Mitigation', layer: layerName, layerId, color, title: el.textContent.trim(), anchor: '#' + section.id });
-    });
+  /* build search index from DOM */
+  const idx=[];
+  sections.forEach(sec=>{
+    const lid   = sec.dataset.layer;
+    const lname = (sec.querySelector('.layer-title')||{}).textContent||lid;
+    const col   = getComputedStyle(sec).getPropertyValue('--lc').trim()||'#00d4ff';
+    ['.risk-name','risk-name'].forEach(()=>{});
+    sec.querySelectorAll('.risk-name').forEach(el=>idx.push({type:'Risk',  layer:lname,lid,col,text:el.textContent.trim(),href:'#layer-'+lid}));
+    sec.querySelectorAll('.ex-title' ).forEach(el=>idx.push({type:'Example',layer:lname,lid,col,text:el.textContent.trim(),href:'#layer-'+lid}));
+    sec.querySelectorAll('.mit-name' ).forEach(el=>idx.push({type:'Mitigation',layer:lname,lid,col,text:el.textContent.trim(),href:'#layer-'+lid}));
   });
 
-  if (searchInput) {
-    searchInput.addEventListener('input', function () {
-      const q = this.value.toLowerCase().trim();
-      if (!q) { searchResults.innerHTML = ''; return; }
-      const hits = searchIndex.filter(item =>
-        item.title.toLowerCase().includes(q) || item.layer.toLowerCase().includes(q) || item.type.toLowerCase().includes(q)
-      ).slice(0, 12);
-
-      if (!hits.length) {
-        searchResults.innerHTML = '<div class="search-result-item"><div class="result-title" style="color:var(--text-muted)">No results found</div></div>';
-        return;
-      }
-
-      searchResults.innerHTML = hits.map(item =>
-        `<div class="search-result-item" onclick="location.hash='${item.anchor.replace('#','')}'">
-          <div class="result-layer" style="color:${item.color}">${item.type} · ${item.layer}</div>
-          <div class="result-title">${item.title}</div>
-        </div>`
-      ).join('');
-
-      searchResults.querySelectorAll('.search-result-item').forEach(el => {
-        el.addEventListener('click', closeSearch);
+  if(sInput){
+    sInput.addEventListener('input',function(){
+      const q=this.value.toLowerCase().trim();
+      if(!q){sRes.innerHTML='';return;}
+      const hits=idx.filter(i=>i.text.toLowerCase().includes(q)||i.layer.toLowerCase().includes(q)).slice(0,14);
+      if(!hits.length){sRes.innerHTML='<div class="s-item"><div class="s-title" style="color:var(--tx3)">No results found</div></div>';return;}
+      sRes.innerHTML=hits.map(i=>`<div class="s-item" data-href="${i.href}"><div class="s-layer" style="color:${i.col}">${i.type} · ${i.layer}</div><div class="s-title">${i.text}</div></div>`).join('');
+      sRes.querySelectorAll('.s-item').forEach(el=>{
+        el.addEventListener('click',()=>{
+          const t=document.querySelector(el.dataset.href);
+          if(t){closeSearch();setTimeout(()=>t.scrollIntoView({behavior:'smooth',block:'start'}),100);}
+        });
       });
     });
   }
 
-  // ── Mobile menu ───────────────────────────────────────────────
-  const hamburger   = document.getElementById('hamburgerBtn');
-  const mobileMenu  = document.getElementById('mobileMenu');
-  const mobileClose = document.getElementById('mobileMenuClose');
-
-  if (hamburger) hamburger.addEventListener('click', () => mobileMenu && mobileMenu.classList.add('open'));
-  if (mobileClose) mobileClose.addEventListener('click', () => mobileMenu && mobileMenu.classList.remove('open'));
-
-  window.closeMobileMenu = function () {
-    if (mobileMenu) mobileMenu.classList.remove('open');
-  };
-
-  // Close overlays when clicking outside
-  [searchOverlay, mobileMenu].forEach(overlay => {
-    if (!overlay) return;
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) {
-        overlay.classList.remove('open');
-      }
-    });
+  /* mobile menu */
+  const burger   = document.getElementById('burger');
+  const mobMenu  = document.getElementById('mobMenu');
+  const mobClose = document.getElementById('mobClose');
+  if(burger)   burger.addEventListener('click',()=>mobMenu&&mobMenu.classList.add('open'));
+  if(mobClose) mobClose.addEventListener('click',()=>mobMenu&&mobMenu.classList.remove('open'));
+  if(mobMenu)  mobMenu.addEventListener('click',e=>{if(e.target===mobMenu)mobMenu.classList.remove('open');});
+  document.querySelectorAll('.mob-list a').forEach(a=>{
+    a.addEventListener('click',()=>mobMenu&&mobMenu.classList.remove('open'));
   });
 
-  // ── Smooth nav chip scroll ────────────────────────────────────
-  document.querySelectorAll('.nav-layer-chip').forEach(chip => {
-    chip.addEventListener('click', function (e) {
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-
-  // ── Hero layer stack animations ───────────────────────────────
-  const stackItems = document.querySelectorAll('.layer-stack-item');
-  stackItems.forEach((item, i) => {
-    item.style.opacity = '0';
-    item.style.transform = 'translateY(10px)';
-    setTimeout(() => {
-      item.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-      item.style.opacity = '0.85';
-      item.style.transform = 'translateY(0)';
-    }, 100 + i * 60);
+  /* hero stack entrance animation */
+  document.querySelectorAll('.stack-row').forEach((el,i)=>{
+    el.style.opacity='0';el.style.transform='translateY(8px)';
+    setTimeout(()=>{
+      el.style.transition='opacity .35s ease,transform .35s ease';
+      el.style.opacity='.85';el.style.transform='none';
+    },80+i*55);
   });
 
 })();
